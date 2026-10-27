@@ -1,0 +1,86 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:3.9.8")
+        classpath "net.serenity-bdd:serenity-single-page-report:3.9.8"
+    }
+}
+
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id "net.serenity-bdd.serenity-gradle-plugin" version "3.9.8"
+}
+
+defaultTasks 'clean', 'test', 'aggregate'
+apply plugin: 'net.serenity-bdd.serenity-gradle-plugin'
+
+group 'pa.com.reto.automation.project'
+version '1.0-SNAPSHOT'
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    slf4jVersion = '1.7.36'
+    serenityCoreVersion = '3.9.8'
+    serenityCucumberVersion = '3.9.8'
+    junitVersion = '5.10.2'
+    assertJVersion = '3.27.7'
+    logbackVersion = '1.6.3'
+    lombokVersion = '1.18.38'
+    log4jVersion = '2.22.1'
+}
+
+dependencies {
+    testImplementation("net.serenity-bdd:serenity-core:${serenityCoreVersion}") {
+        exclude group: 'org.apache.groovy', module: 'groovy'
+    }
+    testImplementation 'io.github.bonigarcia:webdrivermanager:6.4.0'
+    implementation "net.serenity-bdd:serenity-ensure:${serenityCoreVersion}"
+    implementation "net.serenity-bdd:serenity-junit5:${serenityCoreVersion}"
+    implementation "net.serenity-bdd:serenity-cucumber:${serenityCucumberVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay:${serenityCoreVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay-webdriver:${serenityCoreVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay-rest:${serenityCoreVersion}"
+    testImplementation "org.junit.vintage:junit-vintage-engine:${junitVersion}"
+    implementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    implementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    implementation "org.assertj:assertj-core:${assertJVersion}"
+    implementation "ch.qos.logback:logback-classic:${logbackVersion}"
+    implementation "org.slf4j:slf4j-api:1.7.36"
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+}
+
+test {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+    systemProperties System.getProperties()
+
+}
+
+serenity {
+    testRoot = "pa.com.reto.automation.cert"
+    requirementsBaseDir = "src/test/resources/features"
+    reports = ["single-page-html"]
+}
+
+gradle.startParameter.continueOnFailure = true
+test.finalizedBy(aggregate)
